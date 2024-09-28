@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const closePopupBtn = document.getElementById('close-popup');
     const trash = document.getElementById('trash');
     let isOverTrashBin = false;
-        let squareElement; // Przechowuje element kafelka
+    let squareElement; // Przechowuje element kafelka
 
     // Inicjalizacja Sortable dla kafelków
     const sortable = new Sortable(sortableContainer, {
@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function() {
         onMove: function(evt) {
             const draggedTile = evt.dragged;
             squareElement = draggedTile.querySelector('.invisible-square'); // Zaktualizuj element
-            isOverTrashBin = isOverTrash(draggedTile, trash);
+            isOverTrashBin = isOverTrash(draggedTile.getBoundingClientRect(), trash.getBoundingClientRect());
             
             console.log('Is over trash:', isOverTrashBin); // Debugowanie
 
@@ -227,20 +227,16 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-
-
-
-
     // Funkcja sprawdzająca, czy element jest nad koszem
-function isOverTrash(squareRect, trashRect) {
-    const margin = 10; // Ustal margines, aby ułatwić kolizję
-    return (
-        squareRect.x < trashRect.x + trashRect.width &&
-        squareRect.x + squareRect.width > trashRect.x &&
-        squareRect.y < trashRect.y + trashRect.height + margin && // Użyj marginu do dolnej granicy
-        squareRect.y + squareRect.height > trashRect.y - margin // Użyj marginu do górnej granicy
-    );
-}
+    function isOverTrash(squareRect, trashRect) {
+        const margin = 10; // Ustal margines, aby ułatwić kolizję
+        return (
+            squareRect.left < trashRect.right &&
+            squareRect.right > trashRect.left &&
+            squareRect.top < trashRect.bottom + margin && // Użyj marginu do dolnej granicy
+            squareRect.bottom > trashRect.top - margin // Użyj marginu do górnej granicy
+        );
+    }
 
     // Pokaż popup po kliknięciu na przycisk "+"
     addTileBtn.addEventListener("click", function(event) {
@@ -301,82 +297,31 @@ function isOverTrash(squareRect, trashRect) {
         return tileItem;
     }
 
-// Funkcja do dodawania kafelka do kontenera
-function addTileToContainer(iconUrl, name) {
-    const newTile = document.createElement('div');
-    newTile.className = 'icon';
-    newTile.innerHTML = `
-        <div class="invisible-square"></div> <!-- Niewidoczny kwadrat -->
-        <img src="${iconUrl}" alt="${name}">
-        <span>${name}</span>
-        <button class="remove-btn">Usuń</button>
-    `;
-/*
-    // Ustawienie stylów dla niewidocznego kwadratu
-    const invisibleSquare = newTile.querySelector('.invisible-square');
-    invisibleSquare.style.width = '10px'; // Ustawienie szerokości na 10px
-    invisibleSquare.style.height = '10px'; // Ustawienie wysokości na 10px
-    invisibleSquare.style.backgroundColor = 'red'; // Niewidoczny dla użytkownika
-    invisibleSquare.style.position = 'absolute'; // Umożliwia umiejscowienie wewnątrz kafelka
-    invisibleSquare.style.top = '50%'; // Ustawienie od góry na 50%
-    invisibleSquare.style.left = '50%'; // Ustawienie od lewej na 50%
-    invisibleSquare.style.transform = 'translate(-50%, -50%)'; // Wyśrodkowanie
-    invisibleSquare.style.zIndex = '20'; // Umieść za innymi elementami kafelka
-*/
-    newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
-        event.stopPropagation();
-        removeTile(newTile);
-    });
-    sortableContainer.appendChild(newTile);
-}
+    // Funkcja do dodawania kafelka do kontenera
+    function addTileToContainer(iconUrl, name) {
+        const newTile = document.createElement('div');
+        newTile.className = 'icon';
+        newTile.innerHTML = `
+            <div class="invisible-square"></div> <!-- Niewidoczny kwadrat -->
+            <img src="${iconUrl}" alt="${name}">
+            <span>${name}</span>
+            <button class="remove-btn">Usuń</button>
+        `;
+
+        newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
+            event.stopPropagation();
+            removeTile(newTile);
+        });
+        sortableContainer.appendChild(newTile);
+    }
 
     // Funkcja do usuwania kafelka
     function removeTile(tile) {
         sortableContainer.removeChild(tile);
         console.log('Kafelek usunięty do kosza');
     }
-
-
-    // Funkcja do obliczania pozycji kafelka
-    document.addEventListener('mousemove', function(event) {
-        if (squareElement) {
-            const newX = event.clientX; 
-            const newY = event.clientY;
-            squareElement.style.left = `${newX}px`;
-            squareElement.style.top = `${newY}px`;
-        }
-    });
 });
-    
-/*
-    document.addEventListener('mousemove', onMouseMove);
-    
-    function onMouseMove(event) {
-    // Oblicz nowe współrzędne kafelka
-    const newX = event.clientX; // Upewnij się, że używasz odpowiednich wartości
-    const newY = event.clientY;
-
-    // Zaktualizuj pozycję kafelka
-    squareElement.style.left = `${newX}px`;
-    squareElement.style.top = `${newY}px`;
-
-    // Oblicz prostokąt kafelka
-    const squareRect = squareElement.getBoundingClientRect();
-
-    // Oblicz prostokąt kosza
-    const trashRect = trashElement.getBoundingClientRect();
-
-    // Loguj współrzędne kafelka i kosza
-    console.log(`Kafelek: x: ${squareRect.x}, y: ${squareRect.y}`);
-    console.log(`Kosz: x: ${trashRect.x}, y: ${trashRect.y}`);
-
-    // Sprawdź kolizję
-    if (isOverTrash(squareRect, trashRect)) {
-        console.log('Kafelek nad koszem!');
-    } else {
-        console.log('Kafelek nie nad koszem');
-    }
-} */
 </script>
+
 </body>
 </html>
