@@ -56,7 +56,7 @@
             margin: 20px 0; /* Dodanie przerwy między kafelkami */
             text-align: center;
             cursor: pointer;
-                position: relative; /* Dodaj tę linię */
+            position: relative; /* Dodaj tę linię */
         }
 
         .icon img {
@@ -80,10 +80,10 @@
             background-size: cover;
             border: 1px solid black;
             margin-left: 100px; /* Ustawienie marginesu 100px od lewej */
-        transition: border 0.2s, background-color 0.2s; /* Dodano płynne przejście */
+            transition: border 0.2s, background-color 0.2s; /* Dodano płynne przejście */
             background-color: rgba(255, 0, 0, 0.2); /* Ustawienie półprzezroczystego tła dla lepszej widoczności */
-             position: relative; /* lub absolute */
-    z-index: 20; /* Kosz z wyższym z-index */
+            position: relative; /* lub absolute */
+            z-index: 20; /* Kosz z wyższym z-index */
     }
         .highlight-trash {
         border: 2px dashed red;
@@ -96,7 +96,6 @@
             border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
             position: absolute; /* Użyj pozycji absolutnej */
             top: calc(160px); /* Ustawienie linii 20px poniżej przycisku "+" */
-            
             margin-top: 20px; /* Odstęp górny */
             margin-bottom: 20px; /* Odstęp dolny */
         }
@@ -196,6 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const closePopupBtn = document.getElementById('close-popup');
     const trash = document.getElementById('trash');
     let isOverTrashBin = false;
+        let squareElement; // Przechowuje element kafelka
 
     // Inicjalizacja Sortable dla kafelków
     const sortable = new Sortable(sortableContainer, {
@@ -212,7 +212,9 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         onMove: function(evt) {
             const draggedTile = evt.dragged;
+            squareElement = draggedTile.querySelector('.invisible-square'); // Zaktualizuj element
             isOverTrashBin = isOverTrash(draggedTile, trash);
+            
             console.log('Is over trash:', isOverTrashBin); // Debugowanie
 
             if (isOverTrashBin) {
@@ -225,30 +227,20 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    /*
 
-     // Dodaj kilka kafelków do testowania
-    for (let i = 0; i < 3; i++) {
-        addTileToContainer('https://via.placeholder.com/60', `Kafelek ${i + 1}`);
-    } */
+
+
 
     // Funkcja sprawdzająca, czy element jest nad koszem
-    function isOverTrash(tile, trash) {
-        const tileRect = tile.querySelector('.invisible-square').getBoundingClientRect(); // Użyj niewidocznego kwadratu
-        const trashRect = trash.getBoundingClientRect();
-
-          console.log('Niewidoczny kwadrat:', tileRect);
-    console.log('Kosz:', trashRect);
-
-       // Sprawdzanie, czy niewidoczny kwadrat kafelka wchodzi w obszar kosza
-    const isOver = !(tileRect.right < trashRect.left || 
-             tileRect.left > trashRect.right || 
-             tileRect.bottom < trashRect.top || 
-             tileRect.top > trashRect.bottom);
-        
-    console.log('Kafelek nad koszem:', isOver); // Zaloguj wynik
-    return isOver;
-    }
+function isOverTrash(squareRect, trashRect) {
+    const margin = 10; // Ustal margines, aby ułatwić kolizję
+    return (
+        squareRect.x < trashRect.x + trashRect.width &&
+        squareRect.x + squareRect.width > trashRect.x &&
+        squareRect.y < trashRect.y + trashRect.height + margin && // Użyj marginu do dolnej granicy
+        squareRect.y + squareRect.height > trashRect.y - margin // Użyj marginu do górnej granicy
+    );
+}
 
     // Pokaż popup po kliknięciu na przycisk "+"
     addTileBtn.addEventListener("click", function(event) {
@@ -319,7 +311,7 @@ function addTileToContainer(iconUrl, name) {
         <span>${name}</span>
         <button class="remove-btn">Usuń</button>
     `;
-
+/*
     // Ustawienie stylów dla niewidocznego kwadratu
     const invisibleSquare = newTile.querySelector('.invisible-square');
     invisibleSquare.style.width = '10px'; // Ustawienie szerokości na 10px
@@ -330,7 +322,7 @@ function addTileToContainer(iconUrl, name) {
     invisibleSquare.style.left = '50%'; // Ustawienie od lewej na 50%
     invisibleSquare.style.transform = 'translate(-50%, -50%)'; // Wyśrodkowanie
     invisibleSquare.style.zIndex = '20'; // Umieść za innymi elementami kafelka
-
+*/
     newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
         event.stopPropagation();
         removeTile(newTile);
@@ -343,7 +335,48 @@ function addTileToContainer(iconUrl, name) {
         sortableContainer.removeChild(tile);
         console.log('Kafelek usunięty do kosza');
     }
+
+
+    // Funkcja do obliczania pozycji kafelka
+    document.addEventListener('mousemove', function(event) {
+        if (squareElement) {
+            const newX = event.clientX; 
+            const newY = event.clientY;
+            squareElement.style.left = `${newX}px`;
+            squareElement.style.top = `${newY}px`;
+        }
+    });
 });
+    
+/*
+    document.addEventListener('mousemove', onMouseMove);
+    
+    function onMouseMove(event) {
+    // Oblicz nowe współrzędne kafelka
+    const newX = event.clientX; // Upewnij się, że używasz odpowiednich wartości
+    const newY = event.clientY;
+
+    // Zaktualizuj pozycję kafelka
+    squareElement.style.left = `${newX}px`;
+    squareElement.style.top = `${newY}px`;
+
+    // Oblicz prostokąt kafelka
+    const squareRect = squareElement.getBoundingClientRect();
+
+    // Oblicz prostokąt kosza
+    const trashRect = trashElement.getBoundingClientRect();
+
+    // Loguj współrzędne kafelka i kosza
+    console.log(`Kafelek: x: ${squareRect.x}, y: ${squareRect.y}`);
+    console.log(`Kosz: x: ${trashRect.x}, y: ${trashRect.y}`);
+
+    // Sprawdź kolizję
+    if (isOverTrash(squareRect, trashRect)) {
+        console.log('Kafelek nad koszem!');
+    } else {
+        console.log('Kafelek nie nad koszem');
+    }
+} */
 </script>
 </body>
 </html>
