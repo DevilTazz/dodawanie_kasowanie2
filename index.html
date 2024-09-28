@@ -155,6 +155,15 @@
             font-size: 12px;
             color: gray;
         }
+        .invisible-square {
+    width: 100px; /* Ustaw odpowiednią szerokość */
+    height: 100px; /* Ustaw odpowiednią wysokość */
+    position: absolute; /* Pozycjonowanie względem kafelka */
+    top: 0; /* Umieść w lewym górnym rogu kafelka */
+    left: 0; /* Umieść w lewym górnym rogu kafelka */
+    background-color: transparent; /* Niewidoczny dla użytkownika */
+    z-index: -1; /* Umieść za innymi elementami kafelka */
+}
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
@@ -212,16 +221,21 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+     // Dodaj kilka kafelków do testowania
+    for (let i = 0; i < 3; i++) {
+        addTileToContainer('https://via.placeholder.com/60', `Kafelek ${i + 1}`);
+    }
+
     // Funkcja sprawdzająca, czy element jest nad koszem
     function isOverTrash(tile, trash) {
-        const tileRect = tile.getBoundingClientRect();
+        const tileRect = tile.querySelector('.invisible-square').getBoundingClientRect(); // Użyj niewidocznego kwadratu
         const trashRect = trash.getBoundingClientRect();
 
-        // Sprawdzanie, czy kafelek wchodzi w obszar kosza
-        return !(tileRect.right < trashRect.left || 
-                         tileRect.left > trashRect.right || 
-                         tileRect.bottom < trashRect.top || 
-                         tileRect.top > trashRect.bottom);
+       // Sprawdzanie, czy niewidoczny kwadrat kafelka wchodzi w obszar kosza
+    return !(tileRect.right < trashRect.left || 
+             tileRect.left > trashRect.right || 
+             tileRect.bottom < trashRect.top || 
+             tileRect.top > trashRect.bottom);
 
     }
 
@@ -289,6 +303,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const newTile = document.createElement('div');
         newTile.className = 'icon';
         newTile.innerHTML = `
+        <div class="invisible-square"></div> <!-- Niewidoczny kwadrat -->
             <img src="${iconUrl}" alt="${name}">
             <span>${name}</span>
             <button class="remove-btn">Usuń</button>
