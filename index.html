@@ -56,6 +56,7 @@
             margin: 20px 0; /* Dodanie przerwy między kafelkami */
             text-align: center;
             cursor: pointer;
+                position: relative; /* Dodaj tę linię */
         }
 
         .icon img {
@@ -163,7 +164,7 @@
     left: 50%; /* Ustawienie od lewej na 50% */
     transform: translate(-50%, -50%); /* Przesunięcie, aby wyśrodkować */
     background-color: red; /* Niewidoczny dla użytkownika */
-    z-index: -1; /* Umieść za innymi elementami kafelka */
+    z-index: 20; /* Umieść za innymi elementami kafelka */
 }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -321,12 +322,12 @@ function addTileToContainer(iconUrl, name) {
     const invisibleSquare = newTile.querySelector('.invisible-square');
     invisibleSquare.style.width = '10px'; // Ustawienie szerokości na 10px
     invisibleSquare.style.height = '10px'; // Ustawienie wysokości na 10px
-    invisibleSquare.style.backgroundColor = 'transparent'; // Niewidoczny dla użytkownika
+    invisibleSquare.style.backgroundColor = 'red'; // Niewidoczny dla użytkownika
     invisibleSquare.style.position = 'absolute'; // Umożliwia umiejscowienie wewnątrz kafelka
     invisibleSquare.style.top = '50%'; // Ustawienie od góry na 50%
     invisibleSquare.style.left = '50%'; // Ustawienie od lewej na 50%
     invisibleSquare.style.transform = 'translate(-50%, -50%)'; // Wyśrodkowanie
-    invisibleSquare.style.zIndex = '-1'; // Umieść za innymi elementami kafelka
+    invisibleSquare.style.zIndex = '20'; // Umieść za innymi elementami kafelka
 
     newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
         event.stopPropagation();
