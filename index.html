@@ -79,20 +79,20 @@
             background-size: cover;
             border: 1px solid black;
             margin-left: 100px; /* Ustawienie marginesu 100px od lewej */
-            margin-top: 20px; /* Ustawienie marginesu górnego od separatora */
-        }
+        transition: border 0.2s, background-color 0.2s; /* Dodano płynne przejście */
+    }
         .highlight-trash {
         border: 2px dashed red;
         background-color: lightcoral;
     }
 
         .separator-line {
-            width: calc(100% - 100px); /* Szerokość linii */
+            width: 100%
             height: 2px; /* Wysokość linii */
             border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
             position: absolute; /* Użyj pozycji absolutnej */
             top: calc(160px); /* Ustawienie linii 20px poniżej przycisku "+" */
-            left: 100px; /* Wyrównanie linii do lewej */
+            
             margin-top: 20px; /* Odstęp górny */
             margin-bottom: 20px; /* Odstęp dolny */
         }
@@ -201,8 +201,10 @@ document.addEventListener("DOMContentLoaded", function() {
             isOverTrashBin = isOverTrash(draggedTile, trash);
 
             if (isOverTrashBin) {
+                console.log('Kafelek nad koszem');  // Log dla debugowania
                 trash.classList.add('highlight-trash'); // Podświetl kosz
             } else {
+                console.log('Kafelek nie nad koszem');  // Log dla debugowania
                 trash.classList.remove('highlight-trash'); // Usuń podświetlenie
             }
         }
@@ -212,12 +214,14 @@ document.addEventListener("DOMContentLoaded", function() {
     function isOverTrash(tile, trash) {
         const tileRect = tile.getBoundingClientRect();
         const trashRect = trash.getBoundingClientRect();
-        
+
         // Sprawdzanie, czy kafelek wchodzi w obszar kosza
-        return !(tileRect.right < trashRect.left || 
-                 tileRect.left > trashRect.right || 
-                 tileRect.bottom < trashRect.top || 
-                 tileRect.top > trashRect.bottom);
+        const isOver = !(tileRect.right < trashRect.left || 
+                         tileRect.left > trashRect.right || 
+                         tileRect.bottom < trashRect.top || 
+                         tileRect.top > trashRect.bottom);
+
+        return isOver;
     }
 
     // Pokaż popup po kliknięciu na przycisk "+"
