@@ -155,13 +155,14 @@
             font-size: 12px;
             color: gray;
         }
-        .invisible-square {
-    width: 100px; /* Ustaw odpowiednią szerokość */
-    height: 100px; /* Ustaw odpowiednią wysokość */
-    position: absolute; /* Pozycjonowanie względem kafelka */
-    top: 0; /* Umieść w lewym górnym rogu kafelka */
-    left: 0; /* Umieść w lewym górnym rogu kafelka */
-    background-color: transparent; /* Niewidoczny dla użytkownika */
+      .invisible-square {
+    width: 10px; /* Szerokość niewidocznego kwadratu */
+    height: 10px; /* Wysokość niewidocznego kwadratu */
+    position: absolute; /* Użyj pozycji absolutnej */
+    top: 50%; /* Ustawienie od góry na 50% */
+    left: 50%; /* Ustawienie od lewej na 50% */
+    transform: translate(-50%, -50%); /* Przesunięcie, aby wyśrodkować */
+    background-color: red; /* Niewidoczny dla użytkownika */
     z-index: -1; /* Umieść za innymi elementami kafelka */
 }
     </style>
@@ -233,12 +234,17 @@ document.addEventListener("DOMContentLoaded", function() {
         const tileRect = tile.querySelector('.invisible-square').getBoundingClientRect(); // Użyj niewidocznego kwadratu
         const trashRect = trash.getBoundingClientRect();
 
+          console.log('Niewidoczny kwadrat:', tileRect);
+    console.log('Kosz:', trashRect);
+
        // Sprawdzanie, czy niewidoczny kwadrat kafelka wchodzi w obszar kosza
-    return !(tileRect.right < trashRect.left || 
+    const isOver = !(tileRect.right < trashRect.left || 
              tileRect.left > trashRect.right || 
              tileRect.bottom < trashRect.top || 
              tileRect.top > trashRect.bottom);
-
+        
+    console.log('Kafelek nad koszem:', isOver); // Zaloguj wynik
+    return isOver;
     }
 
     // Pokaż popup po kliknięciu na przycisk "+"
@@ -300,22 +306,34 @@ document.addEventListener("DOMContentLoaded", function() {
         return tileItem;
     }
 
-    // Funkcja do dodawania kafelka do kontenera
-    function addTileToContainer(iconUrl, name) {
-        const newTile = document.createElement('div');
-        newTile.className = 'icon';
-        newTile.innerHTML = `
+// Funkcja do dodawania kafelka do kontenera
+function addTileToContainer(iconUrl, name) {
+    const newTile = document.createElement('div');
+    newTile.className = 'icon';
+    newTile.innerHTML = `
         <div class="invisible-square"></div> <!-- Niewidoczny kwadrat -->
-            <img src="${iconUrl}" alt="${name}">
-            <span>${name}</span>
-            <button class="remove-btn">Usuń</button>
-        `;
-        newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
-            event.stopPropagation();
-            removeTile(newTile);
-        });
-        sortableContainer.appendChild(newTile);
-    }
+        <img src="${iconUrl}" alt="${name}">
+        <span>${name}</span>
+        <button class="remove-btn">Usuń</button>
+    `;
+
+    // Ustawienie stylów dla niewidocznego kwadratu
+    const invisibleSquare = newTile.querySelector('.invisible-square');
+    invisibleSquare.style.width = '10px'; // Ustawienie szerokości na 10px
+    invisibleSquare.style.height = '10px'; // Ustawienie wysokości na 10px
+    invisibleSquare.style.backgroundColor = 'transparent'; // Niewidoczny dla użytkownika
+    invisibleSquare.style.position = 'absolute'; // Umożliwia umiejscowienie wewnątrz kafelka
+    invisibleSquare.style.top = '50%'; // Ustawienie od góry na 50%
+    invisibleSquare.style.left = '50%'; // Ustawienie od lewej na 50%
+    invisibleSquare.style.transform = 'translate(-50%, -50%)'; // Wyśrodkowanie
+    invisibleSquare.style.zIndex = '-1'; // Umieść za innymi elementami kafelka
+
+    newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
+        event.stopPropagation();
+        removeTile(newTile);
+    });
+    sortableContainer.appendChild(newTile);
+}
 
     // Funkcja do usuwania kafelka
     function removeTile(tile) {
