@@ -24,14 +24,16 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             background-color: #F5F5DC;
             margin-left: 100px; /* Ustawiony odstęp od lewej */
-            position: absolute; /* Użyj pozycji absolutnej */
+            position: relative;
             top: 50px; /* Ustawienie od góry */
+            z-index: 1;
         }
 
         .icon-container {            
             display: flex;
             flex-wrap: wrap; /* Umożliwia układ w siatce */
             margin: 20px; /* Odstęp od krawędzi */
+            z-index: 1;
         }
 
         .icon {
