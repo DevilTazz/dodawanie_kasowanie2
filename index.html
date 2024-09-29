@@ -160,6 +160,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
             const sortableContainer = document.getElementById('sortable-container');
+            const addTileBtn = document.getElementById("add-tile");
             const tilePopup = document.getElementById("tile-popup");
             const availableTiles = document.getElementById('available-tiles');
             const trash = document.getElementById('trash');
@@ -184,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             // Dodaj event listenery
-            document.getElementById("add-tile").addEventListener("click", showPopup);
+            addTileBtn.addEventListener("click", showPopup);
             document.getElementById("close-popup").addEventListener("click", closePopup);
             window.addEventListener('click', closePopupOutside);
 
@@ -208,9 +209,16 @@ document.addEventListener("DOMContentLoaded", () => {
             function loadAvailableTiles() {
                 availableTiles.innerHTML = '';
                 fetch('tiles.json')
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        data.forEach(tile => availableTiles.appendChild(createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description)));
+                        data.forEach(tile => {
+                            availableTiles.appendChild(createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description));
+                        });
                     })
                     .catch(error => console.error('Error fetching tiles:', error));
             }
