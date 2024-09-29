@@ -5,16 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tile Removal Example</title>
     <style>
-        .blur-background {
+        body {
             background-color: lightblue;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            filter: blur(1px);
-            opacity: 0.9;
-            z-index: -1;
+            margin: 0;
+            padding: 20px;            
         }
 
         #add-tile {
@@ -34,27 +28,22 @@
             top: 50px; /* Ustawienie od góry */
         }
 
-        .icon-container {
-            position: relative;
+        .icon-container {            
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start; /* Wyrównaj do lewej */
-            margin-left: 100px; /* Zachowaj odstęp od lewej strony */
+            flex-wrap: wrap; /* Umożliwia układ w siatce */
+            margin: 20px; /* Odstęp od krawędzi */
         }
 
         .icon {
             width: 100px;
             height: 100px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             background-color: green;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: 20px 0; /* Dodanie przerwy między kafelkami */
-            text-align: center;
+            margin: 20px; /* Odstęp między kafelkami */
             cursor: pointer;
             position: relative; /* Dodaj tę linię */
         }
@@ -79,26 +68,18 @@
             background-image: url('open_trash_test.svg');
             background-size: cover;
             border: 1px solid black;
-            margin-left: 100px; /* Ustawienie marginesu 100px od lewej */
-            transition: border 0.2s, background-color 0.2s; /* Dodano płynne przejście */
+            margin: 20px; /* Ustawienie marginesu */
+            position: fixed;
+            top: 20px;
+            right: 20px;
             background-color: rgba(255, 0, 0, 0.2); /* Ustawienie półprzezroczystego tła dla lepszej widoczności */
-            position: relative; /* lub absolute */
-            z-index: 20; /* Kosz z wyższym z-index */
+            transition: border 0.2s, background-color 0.2s; /* Dodano płynne przejście */
     }
         .highlight-trash {
         border: 2px dashed red;
         background-color: lightcoral;
     }
 
-        .separator-line {
-            width: 100%
-            height: 2px; /* Wysokość linii */
-            border-bottom: 2px dashed black; /* Zmienione na border-bottom, aby zrobić linię poziomą */
-            position: absolute; /* Użyj pozycji absolutnej */
-            top: calc(160px); /* Ustawienie linii 20px poniżej przycisku "+" */
-            margin-top: 20px; /* Odstęp górny */
-            margin-bottom: 20px; /* Odstęp dolny */
-        }
 
         .popup {
             display: none; /* Domyślnie ukryty */
@@ -157,25 +138,15 @@
             font-size: 12px;
             color: gray;
         }
-      .invisible-square {
-    width: 10px; /* Szerokość niewidocznego kwadratu */
-    height: 10px; /* Wysokość niewidocznego kwadratu */
-    position: absolute; /* Użyj pozycji absolutnej */
-    top: 50%; /* Ustawienie od góry na 50% */
-    left: 50%; /* Ustawienie od lewej na 50% */
-    transform: translate(-50%, -50%); /* Przesunięcie, aby wyśrodkować */
-    background-color: red; /* Niewidoczny dla użytkownika */
-    z-index: 20; /* Umieść za innymi elementami kafelka */
-}
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-    <div class="blur-background"></div>
-
+    
     <div class="icon-container" id="sortable-container">
         <div id="add-tile">+</div>
-        <div class="separator-line"></div>
+
     </div>
 
     <div id="trash"></div>
@@ -187,140 +158,112 @@
     </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const sortableContainer = document.getElementById('sortable-container');
-    const addTileBtn = document.getElementById("add-tile");
-    const tilePopup = document.getElementById("tile-popup");
-    const availableTiles = document.getElementById('available-tiles');
-    const closePopupBtn = document.getElementById('close-popup');
-    const trash = document.getElementById('trash');
-    let isOverTrashBin = false;
-    let squareElement; // Przechowuje element kafelka
+document.addEventListener("DOMContentLoaded", () => {
+            const sortableContainer = document.getElementById('sortable-container');
+            const tilePopup = document.getElementById("tile-popup");
+            const availableTiles = document.getElementById('available-tiles');
+            const trash = document.getElementById('trash');
+            let isOverTrashBin = false;
 
-    // Inicjalizacja Sortable dla kafelków
-    const sortable = new Sortable(sortableContainer, {
-        animation: 150,
-        group: 'tiles',
-        handle: '.icon',
-        onEnd: function (evt) {
-            const draggedTile = evt.item;
-            if (isOverTrashBin) {
-                removeTile(draggedTile); // Wywołaj funkcję usunięcia kafelka
-                isOverTrashBin = false; // Resetuj flagę po usunięciu
-                trash.classList.remove('highlight-trash'); // Usuwamy podświetlenie kosza
-            }
-        },
-        onMove: function(evt) {
-            const draggedTile = evt.dragged;
-            squareElement = draggedTile.querySelector('.invisible-square'); // Zaktualizuj element
-            isOverTrashBin = isOverTrash(draggedTile.getBoundingClientRect(), trash.getBoundingClientRect());
-            
-            console.log('Is over trash:', isOverTrashBin); // Debugowanie
-
-            if (isOverTrashBin) {
-                console.log('Kafelek nad koszem');  // Log dla debugowania
-                trash.classList.add('highlight-trash'); // Podświetl kosz
-            } else {
-                console.log('Kafelek nie nad koszem');  // Log dla debugowania
-                trash.classList.remove('highlight-trash'); // Usuń podświetlenie
-            }
-        }
-    });
-
-    // Funkcja sprawdzająca, czy element jest nad koszem
-    function isOverTrash(squareRect, trashRect) {
-        const margin = 10; // Ustal margines, aby ułatwić kolizję
-        return (
-            squareRect.left < trashRect.right &&
-            squareRect.right > trashRect.left &&
-            squareRect.top < trashRect.bottom + margin && // Użyj marginu do dolnej granicy
-            squareRect.bottom > trashRect.top - margin // Użyj marginu do górnej granicy
-        );
-    }
-
-    // Pokaż popup po kliknięciu na przycisk "+"
-    addTileBtn.addEventListener("click", function(event) {
-        event.preventDefault();
-        tilePopup.classList.add("show");
-        loadAvailableTiles();
-    });
-
-    // Zamknij popup po kliknięciu przycisku "Zamknij"
-    closePopupBtn.addEventListener("click", function(event) {
-        event.preventDefault();
-        tilePopup.classList.remove("show");
-    });
-
-    // Zamknij popup po kliknięciu poza jego obszarem
-    window.addEventListener('click', function(event) {
-        if (tilePopup.classList.contains("show") && !tilePopup.contains(event.target) && event.target !== addTileBtn) {
-            tilePopup.classList.remove("show");
-        }
-    });
-
-    // Funkcja do ładowania dostępnych kafelków
-    function loadAvailableTiles() {
-        availableTiles.innerHTML = '';
-        fetch('tiles.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            // Inicjalizacja Sortable dla kafelków
+            new Sortable(sortableContainer, {
+                animation: 150,
+                group: 'tiles',
+                handle: '.icon',
+                onEnd: evt => {
+                    if (isOverTrashBin) {
+                        removeTile(evt.item);
+                        isOverTrashBin = false;
+                        trash.classList.remove('highlight-trash');
+                    }
+                },
+                onMove: evt => {
+                    isOverTrashBin = isOverTrash(evt.dragged.getBoundingClientRect(), trash.getBoundingClientRect());
+                    trash.classList.toggle('highlight-trash', isOverTrashBin);
                 }
-                return response.json();
-            })
-            .then(data => {
-                data.forEach(tile => {
-                    const tileElement = createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description);
-                    availableTiles.appendChild(tileElement);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching tiles:', error);
             });
-    }
 
-    // Funkcja do tworzenia kafelka w popupie
-    function createTileForPopup(iconUrl, id, name, description) {
-        const tileItem = document.createElement('div');
-        tileItem.className = 'tile-item';
-        tileItem.innerHTML = `
-            <img class="tile-icon" src="${iconUrl}" alt="${name}">
-            <div class="tile-info">
-                <div class="tile-name">${name}</div>
-                <div class="tile-description">${description}</div>
-            </div>
-        `;
-        tileItem.addEventListener('click', function() {
-            addTileToContainer(iconUrl, name);
-            tilePopup.classList.remove("show");
+            // Dodaj event listenery
+            document.getElementById("add-tile").addEventListener("click", showPopup);
+            document.getElementById("close-popup").addEventListener("click", closePopup);
+            window.addEventListener('click', closePopupOutside);
+
+            function showPopup(event) {
+                event.preventDefault();
+                tilePopup.classList.add("show");
+                loadAvailableTiles();
+            }
+
+            function closePopup(event) {
+                event.preventDefault();
+                tilePopup.classList.remove("show");
+            }
+
+            function closePopupOutside(event) {
+                if (tilePopup.classList.contains("show") && !tilePopup.contains(event.target)) {
+                    closePopup(event);
+                }
+            }
+
+            function loadAvailableTiles() {
+                availableTiles.innerHTML = '';
+                fetch('tiles.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(tile => availableTiles.appendChild(createTileForPopup(tile.iconUrl, tile.id, tile.name, tile.description)));
+                    })
+                    .catch(error => console.error('Error fetching tiles:', error));
+            }
+
+            function createTileForPopup(iconUrl, id, name, description) {
+                const tileItem = document.createElement('div');
+                tileItem.className = 'tile-item';
+                tileItem.innerHTML = `
+                    <img class="tile-icon" src="${iconUrl}" alt="${name}">
+                    <div class="tile-info">
+                        <div class="tile-name">${name}</div>
+                        <div class="tile-description">${description}</div>
+                    </div>
+                `;
+                tileItem.addEventListener('click', () => {
+                    addTileToContainer(iconUrl, name);
+                    closePopup();
+                });
+                return tileItem;
+            }
+
+            function addTileToContainer(iconUrl, name) {
+                const newTile = document.createElement('div');
+                newTile.className = 'icon';
+                newTile.innerHTML = `
+                    <div class="invisible-square"></div>
+                    <img src="${iconUrl}" alt="${name}">
+                    <span>${name}</span>
+                    <button class="remove-btn">Usuń</button>
+                `;
+                newTile.querySelector('.remove-btn').addEventListener('click', event => {
+                    event.stopPropagation();
+                    removeTile(newTile);
+                });
+                sortableContainer.appendChild(newTile);
+            }
+
+            function removeTile(tile) {
+                sortableContainer.removeChild(tile);
+                console.log('Kafelek usunięty do kosza');
+            }
+
+            // Funkcja sprawdzająca, czy element jest nad koszem
+            function isOverTrash(squareRect, trashRect) {
+                const margin = 10; // Ustal margines
+                return (
+                    squareRect.left < trashRect.right &&
+                    squareRect.right > trashRect.left &&
+                    squareRect.top < trashRect.bottom + margin &&
+                    squareRect.bottom > trashRect.top - margin
+                );
+            }
         });
-        return tileItem;
-    }
-
-    // Funkcja do dodawania kafelka do kontenera
-    function addTileToContainer(iconUrl, name) {
-        const newTile = document.createElement('div');
-        newTile.className = 'icon';
-        newTile.innerHTML = `
-            <div class="invisible-square"></div> <!-- Niewidoczny kwadrat -->
-            <img src="${iconUrl}" alt="${name}">
-            <span>${name}</span>
-            <button class="remove-btn">Usuń</button>
-        `;
-
-        newTile.querySelector('.remove-btn').addEventListener('click', function(event) {
-            event.stopPropagation();
-            removeTile(newTile);
-        });
-        sortableContainer.appendChild(newTile);
-    }
-
-    // Funkcja do usuwania kafelka
-    function removeTile(tile) {
-        sortableContainer.removeChild(tile);
-        console.log('Kafelek usunięty do kosza');
-    }
-});
 </script>
 
 </body>
